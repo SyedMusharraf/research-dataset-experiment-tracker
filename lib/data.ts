@@ -1,4 +1,4 @@
-export type DatasetStatus = "Raw" | "Cleaned" | "Processed" | "Ready"
+export type DatasetStatus = "raw" | "cleaned" | "processed" | "ready"
 
 export type Dataset = {
   id: string
@@ -266,7 +266,12 @@ export const experiments: Experiment[] = [
 ]
 
 export const datasetCategories = ["Tabular", "Text", "Image", "Time Series"]
-export const datasetStatuses: DatasetStatus[] = ["Raw", "Cleaned", "Processed", "Ready"]
+export const datasetStatuses: DatasetStatus[] = [
+  "raw",
+  "cleaned",
+  "processed",
+  "ready",
+]
 export const modelNames = ["XGBoost", "Random Forest", "BERT-base-uncased", "Logistic Regression", "Isolation Forest"]
 
 export function getDatasetById(id: string) {

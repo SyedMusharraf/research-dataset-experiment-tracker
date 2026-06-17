@@ -1,5 +1,6 @@
 "use client"
 
+import { supabase } from "@/lib/supabase"
 import { useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import {
@@ -34,13 +35,42 @@ export function DatasetFormDialog({
   const isOpen = isControlled ? open : internalOpen
   const setOpen = isControlled ? onOpenChange! : setInternalOpen
   const editing = Boolean(dataset)
+  const [name, setName] = useState(dataset?.name ?? "")
+  const [sourceUrl, setSourceUrl] = useState(dataset?.source_url ?? "")
+  const [category, setCategory] = useState(dataset?.category ?? datasetCategories[0])
+  const [status, setStatus] = useState(dataset?.status ?? datasetStatuses[0])
+  const [description, setDescription] = useState(dataset?.description ?? "")
+  const [notes, setNotes] = useState(dataset?.notes ?? "")
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+  
+    const { error } = await supabase
+      .from("datasets")
+      .insert([
+        {
+          name,
+          source_url: sourceUrl,
+          category,
+          status,
+          description,
+          notes,
+        },
+      ])
+  
+      if (error) {
+        console.error("SUPABASE ERROR:", error)
+      
+        toast.error(error.message)
+      
+        return
+      }
+  
+    toast.success("Dataset added")
+  
     setOpen(false)
-    toast.success(editing ? "Dataset updated" : "Dataset added", {
-      description: editing ? `${dataset?.name} has been updated.` : "Your dataset has been saved.",
-    })
+  
+    window.location.reload()
   }
 
   return (
@@ -57,21 +87,28 @@ export function DatasetFormDialog({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="ds-name">Name</Label>
-              <Input id="ds-name" defaultValue={dataset?.name} placeholder="e.g. Telecom Customer Records" required />
+              <Input
+            id="ds-name"
+              value={name}
+                  onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g. Telecom Customer Records"
+                    required
+                    />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ds-url">Source URL</Label>
               <Input
                 id="ds-url"
                 type="url"
-                defaultValue={dataset?.source_url}
+                value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
                 placeholder="https://data.example.com/dataset.csv"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="ds-category">Category</Label>
-                <Select defaultValue={dataset?.category ?? datasetCategories[0]}>
+                <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger id="ds-category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -86,7 +123,7 @@ export function DatasetFormDialog({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="ds-status">Status</Label>
-                <Select defaultValue={dataset?.status ?? datasetStatuses[0]}>
+                <Select value={status} onValueChange={(v) => setStatus(v as any)}>
                   <SelectTrigger id="ds-status">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -104,7 +141,8 @@ export function DatasetFormDialog({
               <Label htmlFor="ds-desc">Description</Label>
               <Textarea
                 id="ds-desc"
-                defaultValue={dataset?.description}
+                value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                 placeholder="What does this dataset contain?"
                 rows={2}
               />
@@ -113,7 +151,8 @@ export function DatasetFormDialog({
               <Label htmlFor="ds-notes">Notes</Label>
               <Textarea
                 id="ds-notes"
-                defaultValue={dataset?.notes}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Preprocessing notes, caveats, target columns..."
                 rows={2}
               />
