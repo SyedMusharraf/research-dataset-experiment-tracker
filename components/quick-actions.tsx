@@ -7,32 +7,41 @@ import { DatasetFormDialog } from "@/components/dataset-form-dialog"
 import { ProjectFormDialog } from "@/components/project-form-dialog"
 import { ExperimentFormDialog } from "@/components/experiment-form-dialog"
 
-export function QuickActions() {
-  const router = useRouter()
+// export function QuickActions() {
+//   const router = useRouter()
 
+//   return (
+//     <div className="flex flex-wrap items-center gap-2">
+//       <DatasetFormDialog
+//         trigger={
+//           <Button>
+//             <Database className="size-4" /> Add Dataset
+//           </Button>
+//         }
+//       />
+//       <ProjectFormDialog
+//         trigger={
+//           <Button variant="outline">
+//             <FolderPlus className="size-4" /> Create Project
+//           </Button>
+//         }
+//       />
+//       <ExperimentFormDialog
+//         trigger={
+//           <Button variant="outline">
+//             <FlaskConical className="size-4" /> Log Experiment
+//           </Button>
+//         }
+//       />
+//     </div>
+//   )
+// }
+export function QuickActions() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <DatasetFormDialog
-        trigger={
-          <Button>
-            <Database className="size-4" /> Add Dataset
-          </Button>
-        }
-      />
-      <ProjectFormDialog
-        trigger={
-          <Button variant="outline">
-            <FolderPlus className="size-4" /> Create Project
-          </Button>
-        }
-      />
-      <ExperimentFormDialog
-        trigger={
-          <Button variant="outline">
-            <FlaskConical className="size-4" /> Log Experiment
-          </Button>
-        }
-      />
+      <Button>Add Dataset</Button>
+      <Button variant="outline">Create Project</Button>
+      <Button variant="outline">Log Experiment</Button>
     </div>
   )
 }

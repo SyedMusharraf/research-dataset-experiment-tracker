@@ -46,11 +46,11 @@ export default function DashboardPage() {
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Latest logged experiments across projects</CardDescription>
           </div>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/experiments">
-              View all <ArrowRight className="size-4" />
-            </Link>
-          </Button>
+          <Link href="/experiments">
+          <Button variant="ghost" size="sm">
+           View all <ArrowRight className="size-4" />
+             </Button>
+          </Link>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

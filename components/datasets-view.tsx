@@ -52,12 +52,13 @@ export function DatasetsView() {
   return (
     <div className="space-y-6">
       <PageHeader title="Datasets" description="Manage and organize your research datasets.">
-        <DatasetFormDialog
-          trigger={
-            <Button>
-              <Plus className="size-4" /> Add Dataset
-            </Button>
-          }
+      <DatasetFormDialog
+        trigger={
+         <span className="inline-flex items-center gap-2">
+         <Plus className="size-4" />
+           Add Dataset
+          </span>
+           }
         />
       </PageHeader>
 

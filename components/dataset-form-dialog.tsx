@@ -45,7 +45,7 @@ export function DatasetFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+         {trigger ? <DialogTrigger>{trigger}</DialogTrigger> : null}
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>

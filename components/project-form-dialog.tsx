@@ -44,7 +44,7 @@ export function ProjectFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+      {trigger ? <DialogTrigger>{trigger}</DialogTrigger> : null}
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
