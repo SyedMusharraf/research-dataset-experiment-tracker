@@ -19,9 +19,13 @@ import {
 import { StatusBadge } from "@/components/metric-badges"
 import { DatasetFormDialog } from "@/components/dataset-form-dialog"
 import { DatasetDetailSheet } from "@/components/dataset-detail-sheet"
-import { datasets, datasetCategories, datasetStatuses, type Dataset } from "@/lib/data"
+import { datasetCategories, datasetStatuses, type Dataset } from "@/lib/data"
 
-export function DatasetsView() {
+export function DatasetsView({
+      datasets,
+      }: {
+        datasets: Dataset[]
+      }) {
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState("all")
   const [status, setStatus] = useState("all")
@@ -135,7 +139,9 @@ export function DatasetsView() {
                       <ExternalLink className="size-3 shrink-0" />
                     </a>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{d.created_at}</TableCell>
+                  <TableCell className="text-muted-foreground">
+  {new Date(d.created_at).toLocaleDateString()}
+</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
