@@ -30,3 +30,27 @@ export async function getDashboardStats() {
     avgAccuracy,
   }
 }
+
+/* ADD THIS BELOW */
+
+export async function getRecentActivity() {
+  const { data, error } = await supabase
+    .from("experiment_results")
+    .select(`
+      id,
+      model_name,
+      accuracy,
+      created_at,
+      datasets(name),
+      projects(name)
+    `)
+    .order("created_at", { ascending: false })
+    .limit(5)
+
+  if (error) {
+    console.error(error)
+    return []
+  }
+
+  return data
+}

@@ -12,12 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MetricBadge } from "@/components/metric-badges"
-import { getDashboardStats } from "@/lib/dashboard"
-import { recentActivity } from "@/lib/data"
+import { getDashboardStats, getRecentActivity } from "@/lib/dashboard"
+
 
 export default async function DashboardPage() {
 
   const stats = await getDashboardStats()
+  const recentActivity = await getRecentActivity()
 
   return (
     <div className="space-y-6">
@@ -69,19 +70,31 @@ export default async function DashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentActivity.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell className="font-medium">{a.dataset}</TableCell>
-                    <TableCell className="text-muted-foreground">{a.project}</TableCell>
-                    <TableCell>
-                      <span className="font-mono text-xs">{a.model}</span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <MetricBadge value={a.accuracy} />
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">{a.date}</TableCell>
-                  </TableRow>
-                ))}
+              {recentActivity.map((a: any) => (
+  <TableRow key={a.id}>
+    <TableCell className="font-medium">
+      {a.datasets?.name}
+    </TableCell>
+
+    <TableCell className="text-muted-foreground">
+      {a.projects?.name}
+    </TableCell>
+
+    <TableCell>
+      <span className="font-mono text-xs">
+        {a.model_name}
+      </span>
+    </TableCell>
+
+    <TableCell className="text-right">
+      <MetricBadge value={a.accuracy} />
+    </TableCell>
+
+    <TableCell className="text-right text-muted-foreground">
+      {new Date(a.created_at).toISOString().split("T")[0]}
+    </TableCell>
+  </TableRow>
+))}
               </TableBody>
             </Table>
           </div>
