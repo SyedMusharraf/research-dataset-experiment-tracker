@@ -37,11 +37,30 @@ import { ExperimentFormDialog } from "@/components/experiment-form-dialog"
 //   )
 // }
 export function QuickActions() {
+  const router = useRouter()
+
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button>Add Dataset</Button>
-      <Button variant="outline">Create Project</Button>
-      <Button variant="outline">Log Experiment</Button>
+      <Button onClick={() => router.push("/datasets")}>
+        <Database className="size-4" />
+        Add Dataset
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={() => router.push("/projects")}
+      >
+        <FolderPlus className="size-4" />
+        Create Project
+      </Button>
+
+      <Button
+        variant="outline"
+        onClick={() => router.push("/experiments")}
+      >
+        <FlaskConical className="size-4" />
+        Log Experiment
+      </Button>
     </div>
   )
 }

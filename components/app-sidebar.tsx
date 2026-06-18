@@ -60,12 +60,15 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainNav.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton isActive={isActive(item.href)}>
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+<SidebarMenuButton
+  isActive={isActive(item.href)}
+  render={
+    <Link href={item.href}>
+      <item.icon />
+      <span>{item.title}</span>
+    </Link>
+  }
+/>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -77,12 +80,15 @@ export function AppSidebar() {
             <SidebarMenu>
               {secondaryNav.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton isActive={isActive(item.href)}>
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+<SidebarMenuButton
+  isActive={isActive(item.href)}
+  render={
+    <Link href={item.href}>
+      <item.icon />
+      <span>{item.title}</span>
+    </Link>
+  }
+/>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

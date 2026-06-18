@@ -10,11 +10,13 @@ import { cn } from "@/lib/utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -26,6 +28,30 @@ const notifications = [
 ]
 
 export function Topbar() {
+  const router = useRouter()
+const [search, setSearch] = useState("")
+  const [user, setUser] = useState({
+    full_name: "",
+    email: "",
+  })
+  useEffect(() => {
+    loadProfile()
+  }, [])
+  
+  async function loadProfile() {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .limit(1)
+      .maybeSingle()
+  
+    if (data) {
+      setUser({
+        full_name: data.full_name || "",
+        email: data.email || "",
+      })
+    }
+  }
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-md md:px-6">
       <SidebarTrigger className="text-muted-foreground" />
@@ -34,9 +60,16 @@ export function Topbar() {
       <div className="relative hidden max-w-md flex-1 sm:block">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search datasets, projects, experiments..."
-          className="h-9 border-transparent bg-muted pl-9 focus-visible:border-border focus-visible:bg-background"
-        />
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      router.push(`/search?q=${encodeURIComponent(search)}`)
+    }
+  }}
+  placeholder="Search datasets, projects, experiments..."
+  className="h-9 border-transparent bg-muted pl-9 focus-visible:border-border focus-visible:bg-background"
+/>
       </div>
 
       <div className="ml-auto flex items-center gap-1">
@@ -51,12 +84,15 @@ export function Topbar() {
             <span className="absolute right-2 top-2 size-2 rounded-full bg-primary ring-2 ring-background" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex items-center justify-between">
-              Notifications
-              <Badge variant="secondary" className="text-xs">
-                {notifications.length} new
-              </Badge>
-            </DropdownMenuLabel>
+          <div className="flex items-center justify-between px-2 py-1.5">
+  <span className="font-medium">
+    Notifications
+  </span>
+
+  <Badge variant="secondary" className="text-xs">
+    {notifications.length} new
+  </Badge>
+</div>
             <DropdownMenuSeparator />
             {notifications.map((n) => (
               <DropdownMenuItem key={n.title} className="flex flex-col items-start gap-0.5 py-2.5">
@@ -73,15 +109,31 @@ export function Topbar() {
             className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "ml-1 gap-2 px-1.5 pr-2.5")}
           >
             <Avatar className="size-7">
-              <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">ER</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+  {user.full_name
+    ? user.full_name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "U"}
+</AvatarFallback>
             </Avatar>
-            <span className="hidden text-sm font-medium md:inline">Elena Reyes</span>
+            <span className="hidden text-sm font-medium md:inline">
+  {user.full_name}
+</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="flex flex-col">
-              <span>Dr. Elena Reyes</span>
-              <span className="text-xs font-normal text-muted-foreground">elena@research.lab</span>
-            </DropdownMenuLabel>
+          <div className="px-2 py-1.5">
+  <p className="text-sm font-medium">
+    {user.full_name}
+  </p>
+
+  <p className="text-xs text-muted-foreground">
+    {user.email}
+  </p>
+</div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User className="size-4" /> Profile

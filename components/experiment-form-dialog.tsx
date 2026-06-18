@@ -17,7 +17,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { datasets, projects, modelNames, type Experiment } from "@/lib/data"
+import { modelNames, type Experiment } from "@/lib/data"
+import { useEffect } from "react"
 
 export function ExperimentFormDialog({
   trigger,
@@ -66,6 +67,27 @@ export function ExperimentFormDialog({
   const [notes, setNotes] = useState(
     experiment?.notes ?? ""
   )
+
+  const [datasets, setDatasets] = useState<any[]>([])
+  const [projects, setProjects] = useState<any[]>([])
+  useEffect(() => {
+    loadData()
+  }, [])
+  
+  async function loadData() {
+    const { data: datasetsData } = await supabase
+      .from("datasets")
+      .select("*")
+      .order("id")
+  
+    const { data: projectsData } = await supabase
+      .from("projects")
+      .select("*")
+      .order("id")
+  
+    if (datasetsData) setDatasets(datasetsData)
+    if (projectsData) setProjects(projectsData)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -147,14 +169,14 @@ export function ExperimentFormDialog({
                     <SelectValue placeholder="Select dataset" />
                   </SelectTrigger>
                   <SelectContent>
-                    {datasets.map((d) => (
-                      <SelectItem
-                      key={d.id}
-                      value={d.id.replace("ds_", "")}
-                    >
-                        {d.name}
-                      </SelectItem>
-                    ))}
+                  {datasets.map((d) => (
+  <SelectItem
+    key={d.id}
+    value={String(d.id)}
+  >
+    {d.name}
+  </SelectItem>
+))}
                   </SelectContent>
                 </Select>
               </div>
@@ -165,33 +187,29 @@ export function ExperimentFormDialog({
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map((p) => (
-                      <SelectItem
-                      key={p.id}
-                      value={p.id.replace("pr_", "")}
-                    >
-                        {p.name}
-                      </SelectItem>
-                    ))}
+                  {projects.map((p) => (
+  <SelectItem
+    key={p.id}
+    value={String(p.id)}
+  >
+    {p.name}
+  </SelectItem>
+))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="ex-model">Model Name</Label>
-              <Select value={modelName} onValueChange={setModelName}>
-                <SelectTrigger id="ex-model">
-                  <SelectValue placeholder="Select model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {modelNames.map((m) => (
-                    <SelectItem key={m} value={m}>
-                      {m}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+              <div className="grid gap-2">
+  <Label htmlFor="ex-model">Model Name</Label>
+  <Input
+    id="ex-model"
+    value={modelName}
+    onChange={(e) => setModelName(e.target.value)}
+    placeholder="e.g. XGBoost, LightGBM, Llama 3, BERT, Custom CNN"
+  />
+</div>
+        
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="ex-acc">Accuracy</Label>

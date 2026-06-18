@@ -1,5 +1,6 @@
 "use client"
 
+import { supabase } from "@/lib/supabase"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Search, Plus, MoreHorizontal, Eye, Pencil, Trash2, ExternalLink } from "lucide-react"
@@ -51,6 +52,22 @@ export function DatasetsView({
   function openEdit(d: Dataset) {
     setEditing(d)
     setEditOpen(true)
+  }
+  async function deleteDataset(id: number, name: string) {
+    const { error } = await supabase
+      .from("datasets")
+      .delete()
+      .eq("id", id)
+  
+    if (error) {
+      toast.error(error.message)
+      console.error(error)
+      return
+    }
+  
+    toast.success(`${name} deleted`)
+  
+    window.location.reload()
   }
 
   return (
@@ -159,13 +176,13 @@ export function DatasetsView({
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() =>
-                            toast.success("Dataset deleted", { description: `${d.name} has been removed.` })
-                          }
-                        >
-                          <Trash2 className="size-4" /> Delete
-                        </DropdownMenuItem>
+  variant="destructive"
+  onClick={() => deleteDataset(d.id, d.name)}
+>
+  <Trash2 className="size-4" />
+  Delete
+</DropdownMenuItem>
+
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

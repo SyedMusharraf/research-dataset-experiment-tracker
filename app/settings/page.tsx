@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -21,9 +22,57 @@ const themes = [
 ]
 
 export default function SettingsPage() {
-  const { theme, setTheme } = useTheme()
-  const [notifications, setNotifications] = useState({ experiments: true, weekly: true, mentions: false })
+  const [name, setName] = useState("")
+const [email, setEmail] = useState("")
+const [bio, setBio] = useState("")
+useEffect(() => {
+  loadProfile()
+}, [])
 
+async function loadProfile() {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .limit(1)
+    .single()
+
+  if (data) {
+    setName(data.full_name || "")
+    setEmail(data.email || "")
+    setBio(data.bio || "")
+  }
+}
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+useEffect(() => {
+  setMounted(true)
+}, [])
+  const [notifications, setNotifications] = useState({ experiments: true, weekly: true, mentions: false })
+  async function saveProfile() {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .limit(1)
+      .single()
+  
+    if (!profile) return
+  
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: name,
+        email,
+        bio,
+      })
+      .eq("id", profile.id)
+  
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success("Profile updated")
+    }
+  }
   return (
     <div className="space-y-6">
       <PageHeader title="Settings" description="Manage your profile, workspace and preferences." />
@@ -45,18 +94,33 @@ export default function SettingsPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Full name</Label>
-              <Input id="name" defaultValue="Dana Reyes" />
+              <Input
+  id="name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="dana@researchlab.io" />
+              <Input
+  id="email"
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+/>
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" defaultValue="ML researcher focused on churn modeling and NLP pipelines." rows={3} />
+            <Textarea
+  id="bio"
+  value={bio}
+  onChange={(e) => setBio(e.target.value)}
+/>
           </div>
-          <Button onClick={() => toast.success("Profile saved")}>Save changes</Button>
+          <Button onClick={saveProfile}>
+  Save changes
+</Button>
         </CardContent>
       </Card>
 
@@ -66,7 +130,8 @@ export default function SettingsPage() {
           <CardDescription>Customize how the dashboard looks on your device.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid max-w-md grid-cols-3 gap-3">
+  {mounted && (
+    <div className="grid max-w-md grid-cols-3 gap-3">
             {themes.map((t) => (
               <button
                 key={t.value}
@@ -80,12 +145,13 @@ export default function SettingsPage() {
                 <t.icon className="size-5" />
                 {t.label}
               </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+               ))}
+               </div>
+             )}
+           </CardContent>
+</Card>
 
-      <Card>
+<Card>
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
           <CardDescription>Choose what you want to be notified about.</CardDescription>
