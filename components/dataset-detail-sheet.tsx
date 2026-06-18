@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator"
 import { StatusBadge } from "@/components/metric-badges"
 import { DatasetFormDialog } from "@/components/dataset-form-dialog"
 import { experimentsForDataset, type Dataset } from "@/lib/data"
+import { supabase } from "@/lib/supabase"
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -36,6 +37,24 @@ export function DatasetDetailSheet({
   onOpenChange: (open: boolean) => void
 }) {
   const [editOpen, setEditOpen] = useState(false)
+  async function handleDelete() {
+    const { error } = await supabase
+      .from("datasets")
+      .delete()
+      .eq("id", dataset?.id)
+  
+    if (error) {
+      toast.error("Failed to delete dataset")
+      console.error(error)
+      return
+    }
+  
+    toast.success("Dataset deleted")
+  
+    onOpenChange(false)
+  
+    window.location.reload()
+  }
 
   if (!dataset) return null
   const runs = experimentsForDataset(dataset.id)
@@ -97,13 +116,10 @@ export function DatasetDetailSheet({
               <Pencil className="size-4" /> Edit Dataset
             </Button>
             <Button
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-              onClick={() => {
-                onOpenChange(false)
-                toast.success("Dataset deleted", { description: `${dataset.name} has been removed.` })
-              }}
-            >
+  variant="outline"
+  className="text-destructive hover:text-destructive"
+  onClick={handleDelete}
+>
               <Trash2 className="size-4" /> Delete
             </Button>
           </SheetFooter>

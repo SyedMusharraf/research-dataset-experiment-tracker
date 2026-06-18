@@ -1,5 +1,8 @@
 import { ProjectsView } from "@/components/projects-view"
+import { getProjects } from "@/lib/projects"
 
-export default function ProjectsPage() {
-  return <ProjectsView />
+export default async function ProjectsPage() {
+  const projects = await getProjects()
+
+  return <ProjectsView projects={projects} />
 }

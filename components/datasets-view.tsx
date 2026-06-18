@@ -140,7 +140,7 @@ export function DatasetsView({
                     </a>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-  {new Date(d.created_at).toLocaleDateString()}
+{new Date(d.created_at).toISOString().split("T")[0]}
 </TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>

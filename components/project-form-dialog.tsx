@@ -1,5 +1,6 @@
 "use client"
 
+import { supabase } from "@/lib/supabase"
 import { useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import {
@@ -33,13 +34,52 @@ export function ProjectFormDialog({
   const isOpen = isControlled ? open : internalOpen
   const setOpen = isControlled ? onOpenChange! : setInternalOpen
   const editing = Boolean(project)
+  const [name, setName] = useState(project?.name ?? "")
+  const [description, setDescription] = useState(project?.description ?? "")
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+  
+    let error
+  
+    if (editing) {
+      const result = await supabase
+        .from("projects")
+        .update({
+          name,
+          description,
+        })
+        .eq("id", project?.id)
+  
+      error = result.error
+    } else {
+      const result = await supabase
+        .from("projects")
+        .insert([
+          {
+            name,
+            description,
+          },
+        ])
+  
+      error = result.error
+    }
+  
+    if (error) {
+      console.error(error)
+      toast.error(error.message)
+      return
+    }
+  
+    toast.success(
+      editing
+        ? "Project updated successfully"
+        : "Project created successfully"
+    )
+  
     setOpen(false)
-    toast.success(editing ? "Project updated" : "Project created", {
-      description: editing ? `${project?.name} has been updated.` : "Your new project is ready.",
-    })
+  
+    window.location.reload()
   }
 
   return (
@@ -56,16 +96,23 @@ export function ProjectFormDialog({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="pr-name">Name</Label>
-              <Input id="pr-name" defaultValue={project?.name} placeholder="e.g. Customer Churn Prediction" required />
+              <Input
+  id="pr-name"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  placeholder="e.g. Customer Churn Prediction"
+  required
+/>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="pr-desc">Description</Label>
               <Textarea
-                id="pr-desc"
-                defaultValue={project?.description}
-                placeholder="Describe the goal of this project..."
-                rows={3}
-              />
+  id="pr-desc"
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  placeholder="Describe the goal of this project..."
+  rows={3}
+/>
             </div>
           </div>
           <DialogFooter>

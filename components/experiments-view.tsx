@@ -20,21 +20,42 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MetricBadge, MetricBar } from "@/components/metric-badges"
 import { ExperimentFormDialog } from "@/components/experiment-form-dialog"
-import { experiments, projects, modelNames, getDatasetName, getProjectName, type Experiment } from "@/lib/data"
+import { projects, modelNames, type Experiment } from "@/lib/data"
+import { supabase } from "@/lib/supabase"
 
-export function ExperimentsView() {
+export function ExperimentsView({
+  experiments,
+}: {
+  experiments: any[]
+}) {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [project, setProject] = useState("all")
   const [model, setModel] = useState("all")
   const [editing, setEditing] = useState<Experiment | null>(null)
   const [editOpen, setEditOpen] = useState(false)
+  async function handleDelete(id: number) {
+    const { error } = await supabase
+      .from("experiment_results")
+      .delete()
+      .eq("id", id)
+  
+    if (error) {
+      console.error(error)
+      toast.error(error.message)
+      return
+    }
+  
+    toast.success("Experiment deleted")
+  
+    window.location.reload()
+  }
 
   const filtered = useMemo(() => {
     return experiments.filter((e) => {
       const matchesQuery =
         e.model_name.toLowerCase().includes(query.toLowerCase()) ||
-        getDatasetName(e.dataset_id).toLowerCase().includes(query.toLowerCase())
+        e.dataset_name?.toLowerCase().includes(query.toLowerCase())
       const matchesProject = project === "all" || e.project_id === project
       const matchesModel = model === "all" || e.model_name === model
       return matchesQuery && matchesProject && matchesModel
@@ -117,8 +138,12 @@ export function ExperimentsView() {
                   onClick={() => router.push(`/experiments/${e.id}`)}
                 >
                   <TableCell className="font-mono text-xs font-medium">{e.model_name}</TableCell>
-                  <TableCell className="text-muted-foreground">{getDatasetName(e.dataset_id)}</TableCell>
-                  <TableCell className="text-muted-foreground">{getProjectName(e.project_id)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+  {e.dataset_name}
+</TableCell>
+<TableCell className="text-muted-foreground">
+  {e.project_name}
+</TableCell>
                   <TableCell className="text-right">
                     <MetricBadge value={e.accuracy} />
                   </TableCell>
@@ -156,11 +181,11 @@ export function ExperimentsView() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => toast.success("Experiment deleted", { description: "The run has been removed." })}
-                        >
-                          <Trash2 className="size-4" /> Delete
-                        </DropdownMenuItem>
+  variant="destructive"
+  onClick={() => handleDelete(e.id)}
+>
+  <Trash2 className="size-4" /> Delete
+</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

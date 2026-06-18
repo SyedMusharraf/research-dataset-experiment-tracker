@@ -15,11 +15,33 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ProjectFormDialog } from "@/components/project-form-dialog"
 import { useState } from "react"
-import { projects, experimentsForProject, datasetsForProject, type Project } from "@/lib/data"
+import type { Project } from "@/lib/data"
+import { supabase } from "@/lib/supabase"
 
-export function ProjectsView() {
+export function ProjectsView({
+  projects,
+}: {
+  projects: Project[]
+}) {
   const [editing, setEditing] = useState<Project | null>(null)
   const [editOpen, setEditOpen] = useState(false)
+
+  async function handleDelete(id: number, name: string) {
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", id)
+
+    if (error) {
+      console.error(error)
+      toast.error(error.message)
+      return
+    }
+
+    toast.success(`${name} deleted`)
+
+    window.location.reload()
+  }
 
   return (
     <div className="space-y-6">
@@ -35,8 +57,8 @@ export function ProjectsView() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => {
-          const expCount = experimentsForProject(p.id).length
-          const dsCount = datasetsForProject(p.id).length
+          const expCount = 0
+          const dsCount = 0
           return (
             <Card key={p.id} className="group flex flex-col transition-shadow hover:shadow-md">
               <CardHeader>
@@ -69,11 +91,11 @@ export function ProjectsView() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => toast.success("Project deleted", { description: `${p.name} has been removed.` })}
-                      >
-                        <Trash2 className="size-4" /> Delete
-                      </DropdownMenuItem>
+  variant="destructive"
+  onClick={() => handleDelete(p.id, p.name)}
+>
+  <Trash2 className="size-4" /> Delete
+</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

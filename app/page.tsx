@@ -12,9 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MetricBadge } from "@/components/metric-badges"
-import { summary, recentActivity } from "@/lib/data"
+import { getDashboardStats } from "@/lib/dashboard"
+import { recentActivity } from "@/lib/data"
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+
+  const stats = await getDashboardStats()
+
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Overview of your research datasets, projects and experiments.">
@@ -22,12 +26,12 @@ export default function DashboardPage() {
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Datasets" value={String(summary.totalDatasets)} icon={Database} change="+12%" hint="vs last month" />
-        <StatCard label="Total Projects" value={String(summary.totalProjects)} icon={FolderKanban} change="+1" hint="this month" />
-        <StatCard label="Total Experiments" value={String(summary.totalExperiments)} icon={FlaskConical} change="+24%" hint="vs last month" />
+        <StatCard label="Total Datasets" value={String(stats.totalDatasets)} icon={Database} change="+12%" hint="vs last month" />
+        <StatCard label="Total Projects" value={String(stats.totalProjects)} icon={FolderKanban} change="+1" hint="this month" />
+        <StatCard label="Total Experiments" value={String(stats.totalExperiments)} icon={FlaskConical} change="+24%" hint="vs last month" />
         <StatCard
           label="Avg Model Accuracy"
-          value={`${(summary.avgAccuracy * 100).toFixed(1)}%`}
+          value={`${(stats.avgAccuracy * 100).toFixed(1)}%`}
           icon={Target}
           change="+2.3%"
           hint="across all runs"

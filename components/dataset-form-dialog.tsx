@@ -45,28 +45,48 @@ export function DatasetFormDialog({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
   
-    const { error } = await supabase
-      .from("datasets")
-      .insert([
-        {
+    let error
+  
+    if (editing) {
+      const result = await supabase
+        .from("datasets")
+        .update({
           name,
           source_url: sourceUrl,
           category,
           status,
           description,
           notes,
-        },
-      ])
+        })
+        .eq("id", dataset?.id)
   
-      if (error) {
-        console.error("SUPABASE ERROR:", error)
-      
-        toast.error(error.message)
-      
-        return
-      }
+      error = result.error
+    } else {
+      const result = await supabase
+        .from("datasets")
+        .insert([
+          {
+            name,
+            source_url: sourceUrl,
+            category,
+            status,
+            description,
+            notes,
+          },
+        ])
   
-    toast.success("Dataset added")
+      error = result.error
+    }
+  
+    if (error) {
+      console.error("SUPABASE ERROR:", error)
+      toast.error(error.message)
+      return
+    }
+  
+    toast.success(
+      editing ? "Dataset updated successfully" : "Dataset added successfully"
+    )
   
     setOpen(false)
   

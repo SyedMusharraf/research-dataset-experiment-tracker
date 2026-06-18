@@ -1,5 +1,6 @@
 "use client"
 
+import { supabase } from "@/lib/supabase"
 import { useState, type ReactNode } from "react"
 import { toast } from "sonner"
 import {
@@ -34,13 +35,98 @@ export function ExperimentFormDialog({
   const isOpen = isControlled ? open : internalOpen
   const setOpen = isControlled ? onOpenChange! : setInternalOpen
   const editing = Boolean(experiment)
+  const [datasetId, setDatasetId] = useState(
+    experiment?.dataset_id?.toString() ?? ""
+  )
+  
+  const [projectId, setProjectId] = useState(
+    experiment?.project_id?.toString() ?? ""
+  )
+  
+  const [modelName, setModelName] = useState(
+    experiment?.model_name ?? ""
+  )
+  
+  const [accuracy, setAccuracy] = useState(
+    experiment?.accuracy?.toString() ?? ""
+  )
+  
+  const [precisionScore, setPrecisionScore] = useState(
+    experiment?.precision_score?.toString() ?? ""
+  )
+  
+  const [recallScore, setRecallScore] = useState(
+    experiment?.recall_score?.toString() ?? ""
+  )
+  
+  const [f1Score, setF1Score] = useState(
+    experiment?.f1_score?.toString() ?? ""
+  )
+  
+  const [notes, setNotes] = useState(
+    experiment?.notes ?? ""
+  )
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setOpen(false)
-    toast.success(editing ? "Experiment updated" : "Experiment logged", {
-      description: editing ? "The experiment has been updated." : "Your experiment results have been recorded.",
+    console.log({
+      datasetId,
+      projectId,
+      modelName,
     })
+    let error
+
+    if (editing) {
+      const result = await supabase
+        .from("experiment_results")
+        .update({
+          dataset_id: Number(datasetId),
+          project_id: Number(projectId),
+          model_name: modelName,
+          accuracy: Number(accuracy),
+          precision_score: Number(precisionScore),
+          recall_score: Number(recallScore),
+          f1_score: Number(f1Score),
+          notes,
+        })
+        .eq("id", experiment.id)
+    
+      error = result.error
+    } else {
+      const result = await supabase
+        .from("experiment_results")
+        .insert([
+          {
+            dataset_id: Number(datasetId),
+            project_id: Number(projectId),
+            model_name: modelName,
+            accuracy: Number(accuracy),
+            precision_score: Number(precisionScore),
+            recall_score: Number(recallScore),
+            f1_score: Number(f1Score),
+            notes,
+          },
+        ])
+    
+      error = result.error
+    }
+  
+    if (error) {
+      console.error("SUPABASE ERROR:", error)
+    
+      toast.error(error.message)
+    
+      return
+    }
+    toast.success(
+      editing
+        ? "Experiment updated"
+        : "Experiment created"
+    )
+  
+    setOpen(false)
+  
+    window.location.reload()
   }
 
   return (
@@ -56,13 +142,16 @@ export function ExperimentFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="ex-dataset">Dataset</Label>
-                <Select defaultValue={experiment?.dataset_id ?? datasets[0].id}>
+                <Select value={datasetId} onValueChange={setDatasetId}>
                   <SelectTrigger id="ex-dataset">
                     <SelectValue placeholder="Select dataset" />
                   </SelectTrigger>
                   <SelectContent>
                     {datasets.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
+                      <SelectItem
+                      key={d.id}
+                      value={d.id.replace("ds_", "")}
+                    >
                         {d.name}
                       </SelectItem>
                     ))}
@@ -71,13 +160,16 @@ export function ExperimentFormDialog({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="ex-project">Project</Label>
-                <Select defaultValue={experiment?.project_id ?? projects[0].id}>
+                <Select value={projectId} onValueChange={setProjectId}>
                   <SelectTrigger id="ex-project">
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
+                      <SelectItem
+                      key={p.id}
+                      value={p.id.replace("pr_", "")}
+                    >
                         {p.name}
                       </SelectItem>
                     ))}
@@ -87,7 +179,7 @@ export function ExperimentFormDialog({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="ex-model">Model Name</Label>
-              <Select defaultValue={experiment?.model_name ?? modelNames[0]}>
+              <Select value={modelName} onValueChange={setModelName}>
                 <SelectTrigger id="ex-model">
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
@@ -105,6 +197,8 @@ export function ExperimentFormDialog({
                 <Label htmlFor="ex-acc">Accuracy</Label>
                 <Input
                   id="ex-acc"
+                  value={accuracy}
+                  onChange={(e) => setAccuracy(e.target.value)}
                   type="number"
                   step="0.001"
                   min="0"
@@ -117,6 +211,8 @@ export function ExperimentFormDialog({
                 <Label htmlFor="ex-prec">Precision Score</Label>
                 <Input
                   id="ex-prec"
+                  value={precisionScore}
+                  onChange={(e) => setPrecisionScore(e.target.value)}                  
                   type="number"
                   step="0.001"
                   min="0"
@@ -129,6 +225,8 @@ export function ExperimentFormDialog({
                 <Label htmlFor="ex-rec">Recall Score</Label>
                 <Input
                   id="ex-rec"
+                  value={recallScore}
+onChange={(e) => setRecallScore(e.target.value)}
                   type="number"
                   step="0.001"
                   min="0"
@@ -141,6 +239,8 @@ export function ExperimentFormDialog({
                 <Label htmlFor="ex-f1">F1 Score</Label>
                 <Input
                   id="ex-f1"
+                  value={f1Score}
+                  onChange={(e) => setF1Score(e.target.value)}                  
                   type="number"
                   step="0.001"
                   min="0"
@@ -154,7 +254,8 @@ export function ExperimentFormDialog({
               <Label htmlFor="ex-notes">Notes</Label>
               <Textarea
                 id="ex-notes"
-                defaultValue={experiment?.notes}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Hyperparameters, observations, next steps..."
                 rows={2}
               />
