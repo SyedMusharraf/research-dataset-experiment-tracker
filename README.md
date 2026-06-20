@@ -125,7 +125,7 @@ npm run dev
 The application will be available at:
 
 ```text
-http://localhost:3000
+https://research-dataset-experiment-tracker.vercel.app/
 ```
 
 ---
