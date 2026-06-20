@@ -34,11 +34,16 @@ export default async function ExperimentDetailPage({ params }: { params: Promise
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" size="sm" asChild className="-ml-2 w-fit text-muted-foreground">
-        <Link href="/experiments">
-          <ArrowLeft className="size-4" /> Back to Experiments
-        </Link>
-      </Button>
+<Link href="/experiments">
+  <Button
+    variant="ghost"
+    size="sm"
+    className="-ml-2 w-fit text-muted-foreground"
+  >
+    <ArrowLeft className="size-4" />
+    Back to Experiments
+  </Button>
+</Link>
 
       <PageHeader title={experiment.model_name} description={`Experiment run logged on ${experiment.created_at}`}>
         <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 font-mono text-sm font-medium text-primary">

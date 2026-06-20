@@ -22,6 +22,7 @@ import { DatasetFormDialog } from "@/components/dataset-form-dialog"
 import { DatasetDetailSheet } from "@/components/dataset-detail-sheet"
 import { datasetCategories, datasetStatuses, type Dataset } from "@/lib/data"
 
+
 export function DatasetsView({
       datasets,
       }: {
@@ -74,13 +75,13 @@ export function DatasetsView({
     <div className="space-y-6">
       <PageHeader title="Datasets" description="Manage and organize your research datasets.">
       <DatasetFormDialog
-        trigger={
-         <span className="inline-flex items-center gap-2">
-         <Plus className="size-4" />
-           Add Dataset
-          </span>
-           }
-        />
+  trigger={
+    <Button>
+      <Plus className="size-4" />
+      Add Dataset
+    </Button>
+  }
+/>
       </PageHeader>
 
       <Card className="p-4">

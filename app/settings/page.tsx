@@ -30,11 +30,22 @@ useEffect(() => {
 }, [])
 
 async function loadProfile() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return
+
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .limit(1)
+    .eq("id", user.id)
     .single()
+
+  if (error) {
+    console.error(error)
+    return
+  }
 
   if (data) {
     setName(data.full_name || "")
@@ -50,13 +61,14 @@ useEffect(() => {
 }, [])
   const [notifications, setNotifications] = useState({ experiments: true, weekly: true, mentions: false })
   async function saveProfile() {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .limit(1)
-      .single()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
   
-    if (!profile) return
+    if (!user) {
+      toast.error("Not logged in")
+      return
+    }
   
     const { error } = await supabase
       .from("profiles")
@@ -65,7 +77,7 @@ useEffect(() => {
         email,
         bio,
       })
-      .eq("id", profile.id)
+      .eq("id", user.id)
   
     if (error) {
       toast.error(error.message)

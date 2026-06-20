@@ -69,18 +69,20 @@ export function ProjectsView({
                     </Link>
                   </CardTitle>
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                       <Button variant="ghost" size="icon" className="size-8 shrink-0">
                         <MoreHorizontal className="size-4" />
                         <span className="sr-only">Open menu</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link href={`/projects/${p.id}`}>
-                          <Eye className="size-4" /> View
-                        </Link>
-                      </DropdownMenuItem>
+                    <DropdownMenuItem
+  onClick={() => {
+    window.location.href = `/projects/${p.id}`
+  }}
+>
+  <Eye className="size-4" /> View
+</DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
                           setEditing(p)
@@ -112,13 +114,16 @@ export function ProjectsView({
                 </div>
               </CardContent>
               <CardFooter className="justify-between border-t pt-4">
-                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="size-3.5" /> {p.created_at}
-                </span>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/projects/${p.id}`}>View</Link>
-                </Button>
-              </CardFooter>
+  <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+    <Calendar className="size-3.5" /> {p.created_at}
+  </span>
+
+  <Link href={`/projects/${p.id}`}>
+    <Button variant="ghost" size="sm">
+      View
+    </Button>
+  </Link>
+</CardFooter>
             </Card>
           )
         })}

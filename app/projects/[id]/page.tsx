@@ -33,11 +33,16 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div className="space-y-6">
-      <Button variant="ghost" size="sm" asChild className="-ml-2 w-fit text-muted-foreground">
-        <Link href="/projects">
-          <ArrowLeft className="size-4" /> Back to Projects
-        </Link>
-      </Button>
+<Link href="/projects">
+  <Button
+    variant="ghost"
+    size="sm"
+    className="-ml-2 w-fit text-muted-foreground"
+  >
+    <ArrowLeft className="size-4" />
+    Back to Projects
+  </Button>
+</Link>
 
       <PageHeader title={project.name} description={project.description}>
         <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">

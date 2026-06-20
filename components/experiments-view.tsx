@@ -159,18 +159,20 @@ export function ExperimentsView({
                   <TableCell className="text-muted-foreground">{e.created_at}</TableCell>
                   <TableCell className="text-right" onClick={(ev) => ev.stopPropagation()}>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <Button variant="ghost" size="icon" className="size-8">
                           <MoreHorizontal className="size-4" />
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/experiments/${e.id}`}>
-                            <Eye className="size-4" /> View
-                          </Link>
-                        </DropdownMenuItem>
+                      <DropdownMenuItem
+  onClick={() => {
+    window.location.href = `/experiments/${e.id}`
+  }}
+>
+  <Eye className="size-4" /> View
+</DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditing(e)

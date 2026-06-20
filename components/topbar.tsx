@@ -30,25 +30,33 @@ const notifications = [
 export function Topbar() {
   const router = useRouter()
 const [search, setSearch] = useState("")
-  const [user, setUser] = useState({
-    full_name: "",
-    email: "",
-  })
+const [user, setUser] = useState<any>(null)
   useEffect(() => {
     loadProfile()
   }, [])
   
   async function loadProfile() {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .limit(1)
-      .maybeSingle()
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
   
-    if (data) {
+    if (!authUser) {
+      setUser(null)
+      return
+    }
+  
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name,email")
+      .eq("id", authUser.id)
+      .single()
+  
+    if (profile) {
+      setUser(profile)
+    } else {
       setUser({
-        full_name: data.full_name || "",
-        email: data.email || "",
+        full_name: authUser.email?.split("@")[0] || "User",
+        email: authUser.email || "",
       })
     }
   }
@@ -104,52 +112,79 @@ const [search, setSearch] = useState("")
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(buttonVariants({ variant: "ghost", size: "lg" }), "ml-1 gap-2 px-1.5 pr-2.5")}
-          >
-            <Avatar className="size-7">
-            <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
-  {user.full_name
-    ? user.full_name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "U"}
-</AvatarFallback>
-            </Avatar>
-            <span className="hidden text-sm font-medium md:inline">
-  {user.full_name}
-</span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-          <div className="px-2 py-1.5">
-  <p className="text-sm font-medium">
-    {user.full_name}
-  </p>
+        {user ? (
+  <DropdownMenu>
+    <DropdownMenuTrigger
+      className={cn(
+        buttonVariants({ variant: "ghost", size: "lg" }),
+        "ml-1 gap-2 px-1.5 pr-2.5"
+      )}
+    >
+      <Avatar className="size-7">
+        <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+          {user.full_name
+            ?.split(" ")
+            .map((n: string) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
 
-  <p className="text-xs text-muted-foreground">
-    {user.email}
-  </p>
-</div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="size-4" /> Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem render={<Link href="/settings" />}>
-              <SettingsIcon className="size-4" /> Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CreditCard className="size-4" /> Billing
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
-              <LogOut className="size-4" /> Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <span className="hidden text-sm font-medium md:inline">
+        {user.full_name}
+      </span>
+    </DropdownMenuTrigger>
+
+    <DropdownMenuContent align="end" className="w-56">
+      <div className="px-2 py-1.5">
+        <p className="text-sm font-medium">
+          {user.full_name}
+        </p>
+
+        <p className="text-xs text-muted-foreground">
+          {user.email}
+        </p>
+      </div>
+
+      <DropdownMenuSeparator />
+
+      <DropdownMenuItem render={<Link href="/settings" />}>
+        <SettingsIcon className="size-4" />
+        Settings
+      </DropdownMenuItem>
+
+      <DropdownMenuSeparator />
+
+      <DropdownMenuItem
+        variant="destructive"
+        onClick={async () => {
+          await supabase.auth.signOut()
+          window.location.reload()
+        }}
+      >
+        <LogOut className="size-4" />
+        Log out
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+) : (
+  <div className="flex gap-2">
+    <Link
+      href="/login"
+      className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+    >
+      Login
+    </Link>
+
+    <Link
+      href="/signup"
+      className={cn(buttonVariants({ size: "sm" }))}
+    >
+      Sign Up
+    </Link>
+  </div>
+)}
       </div>
     </header>
   )

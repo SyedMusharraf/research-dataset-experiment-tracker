@@ -1,16 +1,20 @@
+"use client"
+
+import { useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 
-export default async function TestPage() {
-  const { data, error } = await supabase
-    .from("datasets")
-    .select("*")
+export default function TestPage() {
+  useEffect(() => {
+    async function checkUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-  console.log(data)
-  console.log(error)
+      console.log("USER:", user)
+    }
 
-  return (
-    <pre>
-      {JSON.stringify({ data, error }, null, 2)}
-    </pre>
-  )
+    checkUser()
+  }, [])
+
+  return <div>Check Console</div>
 }

@@ -44,6 +44,14 @@ export function DatasetFormDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    
+    if (!user) {
+      toast.error("Please login first")
+      return
+    }
   
     let error
   
@@ -72,6 +80,7 @@ export function DatasetFormDialog({
             status,
             description,
             notes,
+            user_id: user.id,
           },
         ])
   
@@ -95,7 +104,11 @@ export function DatasetFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-         {trigger ? <DialogTrigger>{trigger}</DialogTrigger> : null}
+    {trigger ? (
+  <DialogTrigger asChild>
+    {trigger}
+  </DialogTrigger>
+) : null}
       <DialogContent className="sm:max-w-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -128,7 +141,12 @@ export function DatasetFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="ds-category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select
+  value={category}
+  onValueChange={(value) => {
+    if (value) setCategory(value)
+  }}
+>
                   <SelectTrigger id="ds-category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -143,7 +161,12 @@ export function DatasetFormDialog({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="ds-status">Status</Label>
-                <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+                <Select
+  value={status}
+  onValueChange={(value) => {
+    if (value) setStatus(value)
+  }}
+>
                   <SelectTrigger id="ds-status">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>

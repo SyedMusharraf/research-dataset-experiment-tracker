@@ -1,5 +1,5 @@
 "use client"
-
+import { supabase } from "@/lib/supabase"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -37,6 +37,10 @@ const secondaryNav = [{ title: "Settings", href: "/settings", icon: Settings }]
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const logout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = "/login"
+  }
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href))
 
